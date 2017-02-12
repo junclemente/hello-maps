@@ -1,0 +1,79 @@
+<html>
+<head>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+      <h2>Two Maps, Two Markers</h2>
+      <div class="container">
+        <!-- Create an id to add the map to -->
+        <div id="map1" class="twomaps"></div>
+        <div id="map2" class="twomaps"></div>
+      </div>
+  <script type="text/javascript">
+
+    // Create a list of markers to add to the map
+    var skiResorts = [
+      { name: "Heavenly Mountain Resort", location: {lat: 38.957265, lng: -119.942719 }},
+      { name: "Northstar California Resort", location: { lat: 39.290828, lng: -120.119423 }},
+      { name: "Squaw Valley Resort", location: { lat: 39.234946, lng: -120.238452 }},
+      { name: "Sierra-At-Tahoe Resort", location: { lat: 38.825300, lng: -120.079150 }},
+      { name: "Homewood Mountain Resort", location: { lat: 39.115711, lng: -120.160174 }},
+      { name: "Alpine Meadows Ski Resort", location: { lat: 39.196643, lng: -120.238452 }},
+      { name: "Diamond Peak Ski Resort", location: { lat: 39.254090, lng: -119.912982 }},
+      { name: "Mt. Rose Ski Tahoe", location: { lat: 39.356102, lng: -119.882770 }},
+      { name: "Donner Ski Ranch", location: { lat: 39.346938, lng: -120.329092 }},
+      { name: "Sugar Bowl Resort", location: { lat: 39.327820, lng: -120.331838 }},
+    ];
+
+    // Create map variable
+    var map1, map2;
+
+    // Create a new blank array for all the markers
+    var markers = [];
+
+
+    function initMap() {
+
+      // Initialize the map, must have a center and zoom
+      map1 = new google.maps.Map(document.getElementById('map1'), {
+        center: skiResorts[0].location,  // set the center of the map to the first location of skiResorts
+        zoom: 13
+      });
+
+      map2 = new google.maps.Map(document.getElementById('map2'), {
+        center: skiResorts[1].location,
+        zoom: 13
+      })
+
+      // Create a new marker for each location
+      var marker1 = new google.maps.Marker({
+        map: map1,
+        position: skiResorts[0].location,
+        title: skiResorts[0].name,
+        animation: google.maps.Animation.DROP
+      });
+
+      var marker2 = new google.maps.Marker({
+        map: map2,
+        position: skiResorts[1].location,
+        title: skiResorts[1].name,
+        animation: google.maps.Animation.DROP
+      });
+
+
+
+    };
+
+  </script>
+
+  <!-- The jQuery CDN is only used to make the mapkey.js file work. jQuery is not needed for the map to work -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <!-- The source of the next script is: https://jsfiddle.net/user2314737/7cfpxpf7/ -->
+  <!-- To use this page, you must remove the next line and unblock the script that calls the google maps api and add your own API key -->
+  <script src="js/mapkey.js"></script>
+
+  <!-- Unblock and add your API key
+  <script async defer src="https://maps.google.com/maps/api/js?v=3&callback=initMap&key=YOUR_API_KEY"></script>
+  -->
+</body>
+</html>
