@@ -1,0 +1,45 @@
+<!-- This is the corresponding "starter code" for 04_Hello Map in Udacity and Google's Maps
+API Course, Lesson 1 -->
+<html>
+<head>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="options-box">
+      <h2>Map and Marker</h2>
+    </div>
+    <div class="map-box">
+      <div id="map"></div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function initMap() {
+      var heavenly = { lat: 38.957265, lng: -119.942719 };
+
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: heavenly,
+        zoom: 13
+      })
+
+      var marker = new google.maps.Marker({
+        position: heavenly,
+        map: map,
+        title: 'Heavenly Mountain Resort',
+        animation: google.maps.Animation.DROP
+      })
+    }
+
+  </script>
+
+  <!-- The jQuery CDN is only used to make the mapkey.js file work. jQuery is not needed for the map to work -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <!-- The source of the next script is: https://jsfiddle.net/user2314737/7cfpxpf7/ -->
+  <!-- To use this page, you must remove the next line and unblock the script that calls the google maps api and add your own API key -->
+  <script src="js/mapkey.js"></script>
+
+  <!-- Unblock and add your API key
+  <script async defer src="https://maps.google.com/maps/api/js?v=3&callback=initMap&key=YOUR_API_KEY"></script>
+  -->
+</body>
+</html>
