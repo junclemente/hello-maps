@@ -28,14 +28,24 @@ API Course, Lesson 1 -->
 
       // Create a marker for the location
       // position is the location of the marker
-      // map is the name of the map the marker is placed. This is useful
-      // when you have multiple maps on the page
+      // map is the name of the map the marker is placed. This is useful when you have multiple maps on the page
       var marker = new google.maps.Marker({
         position: heavenly,
         map: map,
         title: 'Heavenly Mountain Resort',
         animation: google.maps.Animation.DROP
       });
+
+      // Create an infowindow to show information when the marker is clicked
+      var infowindow = new google.maps.InfoWindow({
+        content: '<h2>Heavenly Mountain Resort</h2><p>Heavenly Mountain Resort is a ski resort located on the California-Nevada border in South Lake Tahoe.</p>'
+      });
+
+      // Add a click function to the marker so that an infowindow will open up when the marker is clicked
+
+      marker.addListener('click', function() {
+        infowindow.open(map, marker);
+      })
     }
 
   </script>
