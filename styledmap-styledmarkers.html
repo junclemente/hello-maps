@@ -5,8 +5,12 @@
     <body>
     <div class="container">
         <div class="options-box">
-            <h2>Customizing the Map with Styles</h2>
+            <h2>Style Map with Styled Markers</h2>
             <div id="back-button"></div>
+            <div>
+                <input id="show-resorts" type="button" value="Show Resorts">
+                <input id="hide-resorts" type="button" value="Hide Resorts">
+            </div>
         </div>
         <div class="map-box">
             <!-- Create an id to add the map to -->
@@ -29,6 +33,7 @@
         { name: "Sugar Bowl Resort", location: { lat: 39.327820, lng: -120.331838 }},
         ];
 
+        var lakeCenter = { lat: 39.113499, lng: -120.032618 };
         // Create map variable
         var map;
 
@@ -78,19 +83,14 @@
 
         function initMap() {
 
-
-            // Create bounds variable to measure the boundaries of the map as each location is added to the markers array.
-            // This will ensure that the map will show all the markers
-            var bounds = new google.maps.LatLngBounds();
-
             // Create an infowindow to show information when the marker is clicked
             var infowindow = new google.maps.InfoWindow();
 
             // Initialize the map, must have a center and zoom
             map = new google.maps.Map(document.getElementById('map'), {
-                center: skiResorts[0].location,  // set the center of the map to the first location of skiResorts
+                center: lakeCenter,  // set the center of the map to center of Lake Tahoe
                 styles: stylesArray,
-                zoom: 13,
+                zoom: 11,
                 mapTypeControl: false  // Removes user option to change type of map
             });
 
@@ -102,10 +102,10 @@
                 console.log(i, title, position);
                 // Create a new marker for each location
                 var marker = new google.maps.Marker({
-                map: map,
-                position: position,
-                title: title,
-                animation: google.maps.Animation.DROP
+                    // map: map,  To hide markers from the map, do not assign them to the map
+                    position: position,
+                    title: title,
+                    animation: google.maps.Animation.DROP
                 });
 
                 // After the marker has been created, push the marker into the markers array
@@ -116,12 +116,31 @@
                     populateInfoWindow(this, infowindow);
                 });
 
-                // Add the marker position to bounds
-                bounds.extend(marker.position);
             };
 
-            // After the loop has completed and all markers have been added, fit the boundaries of the map to the markers that have been added
-            map.fitBounds(bounds);
+            document.getElementById('show-resorts').addEventListener('click', showResorts);
+            document.getElementById('hide-resorts').addEventListener('click', hideResorts);
+
+            // To show markers, bounds and and map.fitBounds have been moved to the showResorts function
+            function showResorts() {
+
+                var bounds = new google.maps.LatLngBounds();
+
+                for ( var i = 0; i < markers.length; i++ ) {
+                    markers[i].setMap(map);
+                    bounds.extend(markers[i].position);
+                };
+
+                // After the loop has completed and all markers have been added, fit the boundaries of the map to the markers that have been added
+                map.fitBounds(bounds);
+            };
+
+            // To hide markers, the map the markers have been set to have been set to null
+            function hideResorts() {
+                for ( var i = 0; i < markers.length; i++ ) {
+                    markers[i].setMap(null);
+                }
+            }
 
             function populateInfoWindow( marker, infowindow ) {
                 if ( infowindow.marker != marker ) {
