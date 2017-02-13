@@ -59,13 +59,17 @@
                 "elementType":"all",
                 "stylers":[{"visibility":"simplified"}]
             },{
+                "featureType":"road.highway",
+                "elementType":"labels",
+                "stylers":[{"visibility":"off"}]
+            },{
                 "featureType":"road.arterial",
                 "elementType":"labels.icon",
                 "stylers":[{"visibility":"off"}]
             },{
                 "featureType":"transit",
                 "elementType":"all",
-                "stylers":[{"visibility":"off"}]
+                "stylers":[{"visibility":"on"}]
             },{
                 "featureType":"water",
                 "elementType":"all",
@@ -78,6 +82,9 @@
             // Create bounds variable to measure the boundaries of the map as each location is added to the markers array.
             // This will ensure that the map will show all the markers
             var bounds = new google.maps.LatLngBounds();
+
+            // Create an infowindow to show information when the marker is clicked
+            var infowindow = new google.maps.InfoWindow();
 
             // Initialize the map, must have a center and zoom
             map = new google.maps.Map(document.getElementById('map'), {
@@ -104,12 +111,29 @@
                 // After the marker has been created, push the marker into the markers array
                 markers.push(marker);
 
+                // Create an onclick event to open an infowindow when the marker is clicked
+                marker.addListener('click', function() {
+                    populateInfoWindow(this, infowindow);
+                });
+
                 // Add the marker position to bounds
                 bounds.extend(marker.position);
             };
 
             // After the loop has completed and all markers have been added, fit the boundaries of the map to the markers that have been added
             map.fitBounds(bounds);
+
+            function populateInfoWindow( marker, infowindow ) {
+                if ( infowindow.marker != marker ) {
+                    infowindow.marker = marker;
+                    infowindow.setContent('<div><h3>' + marker.title + '</h3></div>');
+                    infowindow.open( map, marker );
+                    // When the infowindow close button is clicked, the infowindow.marker is set to null
+                    infowindow.addListener('closeclick', function() {
+                        infowindow.marker = null;
+                    })
+                }
+            };
         }
 
     </script>
