@@ -24,6 +24,18 @@ h1, h2, h3 {
 	width: 80%;
 }
 
+a {
+	text-decoration: none;
+}
+
+#back-button a:link, a:visited {
+	display: block;
+	color: blue;
+	background: white;
+	width: 50px;
+	text-align: center;
+}
+
 #map {
 	height: 100%;
 }

@@ -5,7 +5,8 @@
 <body>
   <div class="container">
     <div class="options-box">
-      <h2>Map and Marker</h2>
+      <h2>Adding Multiple Markers with Infowindow</h2>
+      <div id="back-button"></div>
     </div>
     <div class="map-box">
       <!-- Create an id to add the map to -->
@@ -47,6 +48,9 @@
         zoom: 13
       });
 
+      // Create an infowindow to show information when the marker is clicked
+      var infowindow = new google.maps.InfoWindow();
+
       // Iterate through each item in skiResorts and get position and title
       for ( var i = 0; i < skiResorts.length; i++ ) {
         var position = skiResorts[i].location;
@@ -64,16 +68,40 @@
         // After the marker has been created, push the marker into the markers array
         markers.push(marker);
 
+        // Create an onclick event to open an infowindow when a marker is clicked
+        // Create a function populateInfoWindow to populate the infowindow when marker is clicked
+        marker.addListener('click', function() {
+          populateInfoWindow(this, infowindow);
+        });
+
         // Add the marker position to bounds
         bounds.extend(marker.position);
       };
 
       // After the loop has completed and all markers have been added, fit the boundaries of the map to the markers that have been added
       map.fitBounds(bounds);
+
+      // This function checks to see if the infowindow is already open at that location, if it is not, it will create an
+      // infowindow, populate it with the marker title and open the infowindow at the marker's location
+      function populateInfoWindow( marker, infowindow ) {
+        // Check to make sure marker window is not already open at this location
+        if ( infowindow.marker != marker ) {
+          infowindow.marker = marker;
+          infowindow.setContent('<div><h3>' +  marker.title + ' </h3></div>');
+          infowindow.open(map, marker);
+
+          // When the infowindow close button is clicked, the infowindow.marker is set to null. If the user clicks on the
+          // same marker, the infowindow will open again.
+          infowindow.addListener('closeclick', function() {
+            infowindow.marker = null;
+            // infowindow.close();
+          });
+        };
+      };
     }
 
   </script>
-
+  <script src="js/scripts.js"></script>
   <!-- The jQuery CDN is only used to make the mapkey.js file work. jQuery is not needed for the map to work -->
   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
   <!-- The source of the next script is: https://jsfiddle.net/user2314737/7cfpxpf7/ -->
