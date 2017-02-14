@@ -87,10 +87,10 @@
 
             // Create marker styles; create makeMarkerIcon function to change the way the markers look
             // Default look for marker
-            var defaultMarkerLook = makeMarkerIcon('76F5F3');
+            var defaultMarkerLook = makeMarkerIcon('76F5F3', '360CF3');  // Note that "#" is not used to pass on hex color value
 
             // Change marker look when hovered over by user
-            var highlightMarkerLook = makeMarkerIcon('360CF3');
+            var highlightMarkerLook = makeMarkerIcon('360CF3', '76F5F3');
 
             // Create an infowindow to show information when the marker is clicked
             var infowindow = new google.maps.InfoWindow();
@@ -140,15 +140,20 @@
             document.getElementById('show-resorts').addEventListener('click', showResorts);
             document.getElementById('hide-resorts').addEventListener('click', hideResorts);
 
-            // This function takes in color and returns a new markerImage
-            function makeMarkerIcon(markerColor) {
+            // This function takes in two colors (main and center) and returns a new markerImage with that color
+            // More info: https://developers.google.com/chart/infographics/docs/dynamic_icons
+            // chst=d_map_pin_letter_withshadow
+            // chld=%E2%80%A21
+            function makeMarkerIcon(markerColor, markerCenter) {
                 console.log(markerColor);
                 var markerImage = new google.maps.MarkerImage(
-                    'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + markerColor,
-                    new google.maps.Size(21, 34),
-                    new google.maps.Point(0, 0),
-                    new google.maps.Point(10, 34),
-                    new google.maps.Size(23, 34)
+                    // 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + markerColor
+                    'http://chart.apis.google.com/chart?chst=d_map_pin_letter_withshadow&chld=%E2%80%A2|' + markerColor + '|' + markerCenter
+                    // The following lines customize the size of the marker
+                    // new google.maps.Size(21, 34),
+                    // new google.maps.Point(0, 0),
+                    // new google.maps.Point(10, 34),
+                    // new google.maps.Size(23, 34)
                 );
 
                 return markerImage;
