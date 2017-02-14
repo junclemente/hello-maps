@@ -1,0 +1,298 @@
+<html>
+<head>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+    <body>
+    <div class="container">
+        <div class="options-box">
+            <h2>Style Map with Styled Markers</h2>
+            <div id="back-button"></div>
+            <hr>
+            <div>
+                <input id="show-resorts" type="button" value="Show Resorts">
+                <input id="hide-resorts" type="button" value="Hide Resorts">
+                <hr>
+                <span class="text"> Draw a shape to search within it for ski resorts!</span>
+                <!-- <input id="toggle-drawing" type="button" value="Drawing Tools"> -->
+                <input id="toggle-drawing" type="button" value="Drawing Tools">
+            </div>
+        </div>
+        <div class="map-box">
+            <!-- Create an id to add the map to -->
+            <div id="map"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        // Create a list of markers to add to the map
+
+        var lakeCenter = { lat: 39.113499, lng: -120.032618 };
+        // Create map variable
+        var map;
+
+        // Create a new blank array for all the markers
+        var markers = [];
+
+        // Create global polygon variable to ensure only one polygon is rendered at a time
+        var polygon = null;
+
+        function initMap() {
+
+            // Create a styles array to customize how the map looks
+            // Modified from original source: "Blue water", http://snazzymaps.com
+            var stylesArray = [
+                {
+                    "featureType":"administrative",
+                    "elementType":"labels.text.fill",
+                    "stylers":[{"color":"#444444"}]
+                },{
+                    "featureType":"landscape",
+                    "elementType":"all",
+                    "stylers":[{"color":"#f2f2f2"}]
+                },{
+                    "featureType":"poi",
+                    "elementType":"all",
+                    "stylers":[{"visibility":"off"}]
+                },{
+                    "featureType":"road",
+                    "elementType":"all",
+                    "stylers":[{"color": "#6CA0FF"}]
+                },{
+                    "featureType":"road.highway",
+                    "elementType":"all",
+                    "stylers":[{"visibility":"simplified"}]
+                },{
+                    "featureType":"road.highway",
+                    "elementType":"labels",
+                    "stylers":[{"visibility":"off"}]
+                },{
+                    "featureType":"road.arterial",
+                    "elementType":"labels.icon",
+                    "stylers":[{"visibility":"off"}]
+                },{
+                    "featureType":"transit",
+                    "elementType":"all",
+                    "stylers":[{"visibility":"on"}]
+                },{
+                    "featureType":"water",
+                    "elementType":"all",
+                    "stylers":[{"color":"#98E7ED"},{"visibility":"on"}]
+                }];
+
+            // Initialize the map, must have a center and zoom
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: lakeCenter,  // set the center of the map to center of Lake Tahoe
+                styles: stylesArray,
+                zoom: 10,
+                mapTypeControl: false  // Removes user option to change type of map
+            });
+
+            var skiResorts = [
+            { name: "Heavenly Mountain Resort", location: {lat: 38.957265, lng: -119.942719 }},
+            { name: "Northstar California Resort", location: { lat: 39.290828, lng: -120.119423 }},
+            { name: "Squaw Valley Resort", location: { lat: 39.234946, lng: -120.238452 }},
+            { name: "Sierra-At-Tahoe Resort", location: { lat: 38.825300, lng: -120.079150 }},
+            { name: "Homewood Mountain Resort", location: { lat: 39.115711, lng: -120.160174 }},
+            { name: "Alpine Meadows Ski Resort", location: { lat: 39.196643, lng: -120.238452 }},
+            { name: "Diamond Peak Ski Resort", location: { lat: 39.254090, lng: -119.912982 }},
+            { name: "Mt. Rose Ski Tahoe", location: { lat: 39.356102, lng: -119.882770 }},
+            { name: "Donner Ski Ranch", location: { lat: 39.346938, lng: -120.329092 }},
+            { name: "Sugar Bowl Resort", location: { lat: 39.327820, lng: -120.331838 }},
+            ];
+            // Create marker styles; create makeMarkerIcon function to change the way the markers look
+            // Default look for marker
+            var defaultMarkerLook = makeMarkerIcon('76F5F3', '360CF3');  // Note that "#" is not used to pass on hex color value
+
+            // Change marker look when hovered over by user
+            var highlightMarkerLook = makeMarkerIcon('360CF3', '76F5F3');
+
+            // Create an infowindow to show information when the marker is clicked
+            var infowindow = new google.maps.InfoWindow();
+
+            // Initialize the drawing manager
+            var drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_LEFT,
+                    drawingModes: [
+                        // google.maps.drawing.OverlayType.POLYGON
+                        'polygon'
+                    ]
+                }
+            });
+
+            // Iterate through each item in skiResorts and get position and title
+            for ( var i = 0; i < skiResorts.length; i++ ) {
+                var position = skiResorts[i].location;
+                var title = skiResorts[i].name;
+
+                // Create a new marker for each location
+                var marker = new google.maps.Marker({
+                    // map: map,  To hide markers from the map, do not assign them to the map
+                    position: position,
+                    title: title,
+                    icon: defaultMarkerLook,
+                    animation: google.maps.Animation.DROP,
+                    id: i
+                });
+                // After the marker has been created, push the marker into the markers array
+                markers.push(marker);
+                // Create an onclick event to open an infowindow when the marker is clicked
+                marker.addListener('click', function() {
+                    populateInfoWindow(this, infowindow);
+                });
+                // The following mouseover/mouseout events change the marker looks
+                marker.addListener('mouseover', function() {
+                    this.setIcon(highlightMarkerLook);
+                });
+                marker.addListener('mouseout', function() {
+                    this.setIcon(defaultMarkerLook);
+                });
+            }
+
+            document.getElementById('show-resorts').addEventListener('click', showResorts);
+            document.getElementById('hide-resorts').addEventListener('click', hideResorts);
+            document.getElementById('toggle-drawing').addEventListener('click', function() {
+                toggleDrawing(drawingManager);
+            });
+
+            // Add event listener
+            drawingManager.addListener('overlaycomplete', function(event) {
+                event.preventDefault();
+                // Check for existing polygon, if true, get rid of it and remove the markers
+                if (polygon) {
+                    polygon.setMap(null);
+                    hideResorts(markers);
+                }
+
+                // Switch drawing mode to HAND
+                drawingManager.setDrawingMode(null);
+                // Create a new editable polygon from the overlay
+                polygon = event.overlay;
+                polygon.setEditable(true);
+                // Search within the polygon
+                searchWithinPolygon();
+                // Make sure the search is performed again if the poly is changed
+                polygon.getPath().addListener('set_at', searchWithinPolygon);
+                polygon.getPath().addListener('insert_at', searchWithinPolygon);
+            });
+        }  // End of initMap function
+
+        // This function takes in two colors (main and center) and returns a new markerImage with that color
+        // More info: https://developers.google.com/chart/infographics/docs/dynamic_icons
+        // chst=d_map_pin_letter_withshadow
+        // chld=%E2%80%A21
+        function makeMarkerIcon(markerColor, markerCenter) {
+            // console.log(markerColor);
+            var markerImage = new google.maps.MarkerImage(
+                // 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|' + markerColor
+                'http://chart.apis.google.com/chart?chst=d_map_pin_letter_withshadow&chld=%E2%80%A2|' + markerColor + '|' + markerCenter
+                // The following lines customize the size of the marker
+                // new google.maps.Size(21, 34),
+                // new google.maps.Point(0, 0),
+                // new google.maps.Point(10, 34),
+                // new google.maps.Size(23, 34)
+            );
+            return markerImage;
+        }
+
+        function populateInfoWindow( marker, infowindow ) {
+            // Check to make sure that infowindow is not already open at this marker
+            if ( infowindow.marker != marker ) {
+                // Clear the infowindow content and give streetview time to load
+                infowindow.setContent('');
+                infowindow.marker = marker;
+                // When the infowindow close button is clicked, the infowindow.marker is set to null
+                infowindow.addListener('closeclick', function() {
+                    infowindow.marker = null;
+                });
+            }
+
+            var streetViewService = new google.maps.StreetViewService();
+            var radius = 1500;  // in meters
+
+            function getStreetView( data, status ) {
+                if ( status == google.maps.StreetViewStatus.OK ) {
+                    console.log(marker.title);
+                    var nearStreetViewLocation = data.location.latLng;
+                    var heading = google.maps.geometry.spherical.computeHeading(
+                        nearStreetViewLocation, marker.position);
+                        infowindow.setContent('<div><h3>' + marker.title + '</h3></div><div id="pano"></div>');
+                    var panoramaOptions = {
+                        position: nearStreetViewLocation,
+                        pov: {
+                            heading: heading,
+                            pitch: 10
+                        }
+                    };
+                    var panorama = new google.maps.StreetViewPanorama(
+                        document.getElementById('pano'), panoramaOptions);
+                } else {
+                    infowindow.setContent('<div><h3>' + marker.title + '</h3></div>' + '<div>No Street View Found</div>');
+                }
+            }
+            // Use streetview service to get the closest streetview image within radius of marker's position
+            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+            // Open the infowindow on the marker
+            infowindow.open(map, marker);
+        }
+
+        // To show markers, bounds and and map.fitBounds have been moved to the showResorts function
+        function showResorts() {
+            console.log('input: showResorts');
+            var bounds = new google.maps.LatLngBounds();
+            for ( var i = 0; i < markers.length; i++ ) {
+                markers[i].setMap(map);
+                bounds.extend(markers[i].position);
+            }
+            // After the loop has completed and all markers have been added, fit the boundaries of the map to the markers that have been added
+            map.fitBounds(bounds);
+        }
+
+        // To hide markers, the map the markers have been set to have been set to null
+        function hideResorts() {
+            console.log('input: hideResort');
+            for ( var i = 0; i < markers.length; i++ ) {
+                markers[i].setMap(null);
+            }
+        }
+
+        // This function shows and hides the drawing options
+        function toggleDrawing(drawingManager) {
+            if (drawingManager.map) {
+                drawingManager.setMap(null);
+                // If a polygon was drawn, remove by setting to null
+                if (polygon !== null) {
+                    polygon.setMap(null);
+                }
+                console.log('close drawing map');
+            } else {
+                drawingManager.setMap(map);
+                console.log('open drawing map');
+            }
+        }
+
+        function searchWithinPolygon() {
+            for ( var i = 0; i < markers.length; i++ ) {
+                if (google.maps.geometry.poly.containsLocation(markers[i].position, polygon)) {
+                    markers[i].setMap(map);
+                } else {
+                    markers[i].setMap(null);
+                }
+            }
+        }
+
+    </script>
+    <script src="js/scripts.js"></script>
+    <!-- The jQuery CDN is only used to make the mapkey.js file work. jQuery is not needed for the map to work -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <!-- The source of the next script is: https://jsfiddle.net/user2314737/7cfpxpf7/ -->
+    <!-- To use this page, you must remove the next line and unblock the script that calls the google maps api and add your own API key -->
+    <script src="js/mapkey.js"></script>
+
+    <!-- Unblock and add your API key
+    <script async defer src="https://maps.googleapis.com/maps/api/js?v=3&libraries=drawing,geometry&callback=initMap&key=YOUR_API_KEY"></script>
+    -->
+    </body>
+</html>
