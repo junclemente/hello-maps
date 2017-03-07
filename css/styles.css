@@ -10,6 +10,10 @@ h1, h2, h3 {
 	text-shadow: 0 0 8px white;
 }
 
+hr {
+	width: 80%;
+}
+
 a {
 	text-decoration: none;
 }
@@ -52,4 +56,13 @@ a {
 	position: relative;
 	margin-left: 10px;
 	text-align: center;
+}
+
+#zoom-to-area-text {
+	position: relative;
+	width: 70%;
+}
+
+#zoom-to-area {
+	width: 24%;
 }

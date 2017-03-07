@@ -159,7 +159,6 @@
 
             // Add event listener
             drawingManager.addListener('overlaycomplete', function(event) {
-                event.preventDefault();
                 // Check for existing polygon, if true, get rid of it and remove the markers
                 if (polygon) {
                     polygon.setMap(null);
@@ -252,7 +251,6 @@
 
         // To hide markers, the map the markers have been set to have been set to null
         function hideResorts() {
-            console.log('input: hideResort');
             for ( var i = 0; i < markers.length; i++ ) {
                 markers[i].setMap(null);
             }
@@ -266,10 +264,8 @@
                 if (polygon !== null) {
                     polygon.setMap(null);
                 }
-                console.log('close drawing map');
             } else {
                 drawingManager.setMap(map);
-                console.log('open drawing map');
             }
         }
 
